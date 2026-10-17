@@ -1,0 +1,14 @@
+node_modules
+dist
+.vite
+.DS_Store
+Thumbs.db
+*.local
+.env
+.env.*
+!.env.example
+.chrome-profile
+.preview
+.deploy-tools
+.pnpm-store
+.wrangler

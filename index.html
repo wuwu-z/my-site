@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="我的网站，一个正在建设中的个人站点。" />
+    <meta name="theme-color" content="#f9f8f5" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <title>我的网站</title>
+    <script>
+      ;(function () {
+        try {
+          var saved = localStorage.getItem('my-site-theme')
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+          var useDark = saved === 'dark' || (saved !== 'light' && prefersDark)
+          document.documentElement.classList.toggle('dark', useDark)
+          document
+            .querySelector('meta[name="theme-color"]')
+            .setAttribute('content', useDark ? '#0c0e13' : '#f9f8f5')
+        } catch (_) {
+          document.documentElement.classList.remove('dark')
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

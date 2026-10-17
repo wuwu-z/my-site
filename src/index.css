@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --canvas: 249 248 245;
+  --surface: 255 255 255;
+  --surface-muted: 243 242 238;
+  --ink: 24 31 43;
+  --muted: 103 111 125;
+  --line: 226 225 219;
+  --accent: 43 84 201;
+  --accent-soft: 232 237 250;
+}
+
+.dark {
+  color-scheme: dark;
+  --canvas: 12 14 19;
+  --surface: 20 23 30;
+  --surface-muted: 27 31 40;
+  --ink: 239 241 245;
+  --muted: 153 160 173;
+  --line: 43 47 57;
+  --accent: 137 160 255;
+  --accent-soft: 26 33 52;
+}
+
+html {
+  min-width: 320px;
+  background: rgb(var(--canvas));
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background: rgb(var(--canvas));
+  color: rgb(var(--ink));
+  font-family:
+    Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::selection {
+  background: rgb(var(--accent) / 0.2);
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 3px;
+}
+
+@layer components {
+  .hero-grid {
+    background-image: radial-gradient(
+      rgb(var(--ink) / 0.11) 1px,
+      transparent 1px
+    );
+    background-size: 22px 22px;
+    -webkit-mask-image: radial-gradient(
+      ellipse 48% 52% at 50% 45%,
+      #000 10%,
+      transparent 78%
+    );
+    mask-image: radial-gradient(
+      ellipse 48% 52% at 50% 45%,
+      #000 10%,
+      transparent 78%
+    );
+  }
+
+  .hero-glow {
+    background: radial-gradient(
+      circle at center,
+      rgb(var(--accent) / 0.13) 0%,
+      rgb(var(--accent) / 0.06) 35%,
+      transparent 70%
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
