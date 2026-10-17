@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ArrowRightIcon, SparkIcon } from '../components/Icons'
+import { FASHION_BOOT_META } from '../data/fashionBootKeywords'
 
 export function HomePage() {
   return (
@@ -22,24 +23,41 @@ export function HomePage() {
         </div>
 
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted">
-          A small place on the web
+          SEO title studio
         </p>
 
         <h1 className="mt-5 text-balance text-[clamp(2.6rem,7vw,4.6rem)] font-semibold leading-[1.08] tracking-[-0.045em] text-ink">
-          网站正在建设中<span className="text-accent">。</span>
+          时装靴标题工作台<span className="text-accent">。</span>
         </h1>
 
         <p className="mt-6 max-w-xl text-pretty text-[15px] leading-7 text-muted sm:text-base sm:leading-8">
-          这里将用于展示我的作品与想法。目前还在准备中，先留一点空白，很快与你见面。
+          按固定词、鞋型和限制条件，从 {FASHION_BOOT_META.version} 的{' '}
+          {FASHION_BOOT_META.keywordCount} 个真实关键词中组合淘宝标题。
         </p>
 
-        <Link
-          to="/about"
-          className="group mt-9 inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-canvas transition-colors hover:bg-ink/90"
-        >
-          先了解本站
-          <ArrowRightIcon className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-        </Link>
+        <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
+          <Link
+            to="/titles"
+            className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-canvas transition-colors hover:bg-ink/90"
+          >
+            打开标题生成器
+            <ArrowRightIcon className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+          </Link>
+          <Link
+            to="/about"
+            className="inline-flex items-center rounded-full px-3 py-2 text-sm font-medium text-muted transition-colors hover:text-ink"
+          >
+            了解本站
+          </Link>
+        </div>
+
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-muted">
+          <span>{FASHION_BOOT_META.keywordCount} 个关键词</span>
+          <span aria-hidden="true" className="size-1 rounded-full bg-line" />
+          <span>19–21 个汉字</span>
+          <span aria-hidden="true" className="size-1 rounded-full bg-line" />
+          <span>浏览器本地组合</span>
+        </div>
       </div>
     </main>
   )

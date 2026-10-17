@@ -1,19 +1,23 @@
 # 我的网站
 
-一个可以直接部署到 GitHub Pages 的纯静态网站骨架，使用 Vite + React + TypeScript + Tailwind CSS 构建。
+一个可以直接部署到 GitHub Pages 的纯静态 SEO 标题工具站，使用 Vite + React + TypeScript + Tailwind CSS 构建。
 
 **线上地址：** <https://wuwu-z.github.io/my-site/>
 
+**标题生成器：** <https://wuwu-z.github.io/my-site/#/titles>
+
 当前包含：
 
-- 首页：站点名、顶部导航、建设中占位内容、自动年份页脚
-- 关于页：`/#/about`，用于验证 HashRouter 路由
+- 首页：时装靴标题工作台入口、工具数据概览、自动年份页脚
+- 标题生成器：`/#/titles`，按固定词、鞋型、数量、排除条件生成 19–21 个汉字的标题，支持一键复制
+- 关键词库：内置 10.8 更新的 119 条时装靴关键词，可搜索，并保留原始搜索指数
+- 关于页：`/#/about`
 - 404 兜底页：未知地址会显示站内 404，不白屏
 - 深色 / 浅色主题切换，并记住上次选择
 - 响应式布局：电脑和手机均可正常使用
 - GitHub Actions 自动部署配置
 
-没有后端、数据库、密钥或付费服务。构建后只有 HTML、CSS、JS 和静态图标。
+没有后端、数据库、密钥或付费服务。标题组合全部在浏览器本地完成，不会上传用户输入。
 
 ## 技术栈
 
@@ -57,6 +61,7 @@ http://localhost:5173/
 可以顺便验证：
 
 - 首页：`http://localhost:5173/`
+- 标题生成器：`http://localhost:5173/#/titles`
 - 关于页：`http://localhost:5173/#/about`
 - 404 页：`http://localhost:5173/#/does-not-exist`
 
@@ -71,6 +76,30 @@ npm run preview
 
 > 不要直接双击 `dist/index.html` 用 `file://` 方式打开。浏览器会限制模块脚本，页面可能显示空白。请使用 `npm run preview` 或任意静态文件服务器。
 
+## 标题生成器说明
+
+当前关键词数据来自 `时装靴.xlsx`（10.8 更新）：共 119 条关键词，搜索指数全部为 1，没有 0 指数样本。
+
+生成规则：
+
+- 固定词由用户填写，并保证出现在每条标题开头。
+- 除固定词外，所有组合片段都必须是关键词库中某个关键词的子串。
+- 每条标题按汉字计数，控制在 19–21 个汉字，固定词也计入。
+- 同一批次标题不重复；继续点击生成会避开此前已生成过的标题。
+- 支持排除颜色词、加绒、冬季词、高跟，也支持自定义排除词。
+- 当前数据没有 0 指数关键词，所以没有执行 1:1 搜索指数配比。页面会如实显示这一点，不会伪造指数。
+- 这是纯前端的规则式组合器，不调用大模型接口。它优先保证关键词来源、类目、固定词和字数约束；最终标题仍应按商品真实属性复核。
+
+### 更新关键词数据
+
+1. 确认最新 `.xlsx` 的第一个工作表包含两列：A 列「关键词」、B 列「搜索指数」。
+2. 按现有结构更新 `src/data/fashionBootKeywords.ts`，保持 `keyword` 与 `searchIndex` 字段。
+3. 如果关键词数量或搜索指数分布变化，同步更新同文件里的 `FASHION_BOOT_META`。
+4. 本地执行 `npm run dev` 检查标题生成和关键词搜索，再执行 `npm run build`。
+5. 提交并推送，GitHub Actions 会自动更新线上版本。
+
+如果新表格包含 0 指数和 1 指数关键词，并需要按比例选词，还需要在 `src/lib/titleGenerator.ts` 中扩展选词逻辑。
+
 ## 目录结构
 
 ```text
@@ -81,8 +110,10 @@ npm run preview
 │  └─ favicon.svg                 字母图标
 ├─ src/
 │  ├─ components/                 页头、页脚、主题切换、图标
+│  ├─ data/fashionBootKeywords.ts 119 条关键词与搜索指数
 │  ├─ hooks/useTheme.ts           主题状态与 localStorage
-│  ├─ pages/                      首页、关于页、404
+│  ├─ lib/titleGenerator.ts       标题组合规则与去重
+│  ├─ pages/                      首页、标题生成器、关于页、404
 │  ├─ App.tsx                     路由与页面标题
 │  ├─ index.css                   主题颜色和全局样式
 │  └─ main.tsx                    React 入口
@@ -96,7 +127,7 @@ npm run preview
 
 ## 发布到 GitHub Pages
 
-> **需要你本人操作的部分：**注册 GitHub、创建仓库、在浏览器中完成 Git 登录、在仓库里开启 Pages。这里没有你的 GitHub 账号和授权，无法替你完成这些操作，也无法提前生成属于你的公网网址。
+> 本项目已经通过 GitHub Actions 完成部署。以下步骤保留为迁移或其他仓库的参考。
 
 下面以仓库名 `my-site` 为例。最终网址形如：
 
@@ -229,7 +260,7 @@ git push
 - `vite.config.ts` 中的 `base: './'` 让所有资源使用相对路径，因此站点放在 `/<仓库名>/` 这种子路径下也能加载，不会白屏。
 - 使用 `HashRouter`，页面地址是 `/#/about` 这类 Hash 路由。GitHub Pages 是纯静态托管，不提供服务端路由重写；Hash 路由可以避免刷新页面时出现服务器 404。
 - `.github/workflows/deploy.yml` 使用 GitHub 官方 Pages Actions，先执行 `npm ci` 和 `npm run build`，再发布 `dist/`。
-- 站点只使用浏览器本地存储保存主题偏好；没有后端接口、API Key 或数据库。
+- 站点只使用浏览器本地存储保存主题偏好；标题生成在内存中完成，不上传固定词或限制条件；没有后端接口、API Key 或数据库。
 
 ## 继续修改
 

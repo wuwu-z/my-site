@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeftIcon } from '../components/Icons'
+import { ArrowLeftIcon, ArrowRightIcon } from '../components/Icons'
 
 const siteDetails = [
   { label: '技术栈', value: 'React + Vite' },
   { label: '路由', value: 'HashRouter' },
+  { label: '数据', value: '时装靴关键词库' },
   { label: '托管', value: 'GitHub Pages' },
 ]
 
@@ -19,7 +20,7 @@ export function AboutPage() {
             关于本站
           </h1>
           <p className="mt-6 max-w-xl text-pretty text-[15px] leading-7 text-muted sm:text-base sm:leading-8">
-            这是一个从零开始搭建的个人站点。现在它还很安静，但页面结构、路由和部署方式都已经准备好了。
+            这是一个从零开始搭建的纯静态站点。现在，这里已经上线第一个实用工具：时装靴标题生成器。
           </p>
         </div>
 
@@ -27,23 +28,23 @@ export function AboutPage() {
           <section className="rounded-[26px] border border-line bg-surface p-6 shadow-soft sm:p-8">
             <div className="flex items-center justify-between gap-4">
               <h2 className="text-lg font-semibold tracking-[-0.02em] text-ink">
-                正在准备内容
+                标题工具已上线
               </h2>
               <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-accent">
                 <span className="size-1.5 rounded-full bg-accent" />
-                进行中
+                可用
               </span>
             </div>
             <p className="mt-4 max-w-xl text-sm leading-7 text-muted">
-              这一版只包含最小可用的页面骨架：首页、关于页、404
-              兜底页，以及深色与浅色主题切换。之后会在不改变整体结构的前提下，逐步补充正文与作品。
+              生成器直接使用 10.8 更新的 119 个时装靴关键词。输入固定词、鞋型和限制条件后，会在浏览器本地组合出
+              19–21 个汉字的标题，不经过后端，也不会上传你的输入。
             </p>
             <div className="mt-8 border-t border-line pt-6">
               <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted">
                 Next
               </p>
               <p className="mt-2 text-sm leading-6 text-ink">
-                添加真实内容，并让每个页面都有自己的位置。
+                继续补充关键词分析能力，并支持更多鞋类关键词库。
               </p>
             </div>
           </section>
@@ -68,13 +69,22 @@ export function AboutPage() {
           </aside>
         </div>
 
-        <Link
-          to="/"
-          className="group mt-10 inline-flex items-center gap-2 text-sm font-medium text-muted transition-colors hover:text-ink"
-        >
-          <ArrowLeftIcon className="size-4 transition-transform duration-200 group-hover:-translate-x-0.5" />
-          返回首页
-        </Link>
+        <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <Link
+            to="/titles"
+            className="group inline-flex items-center gap-2 text-sm font-medium text-ink transition-colors hover:text-accent"
+          >
+            打开标题生成器
+            <ArrowRightIcon className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+          </Link>
+          <Link
+            to="/"
+            className="group inline-flex items-center gap-2 text-sm font-medium text-muted transition-colors hover:text-ink"
+          >
+            <ArrowLeftIcon className="size-4 transition-transform duration-200 group-hover:-translate-x-0.5" />
+            返回首页
+          </Link>
+        </div>
       </div>
     </main>
   )

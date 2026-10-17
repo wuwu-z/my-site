@@ -1,9 +1,15 @@
 import { Link, NavLink } from 'react-router-dom'
 import { ThemeToggle } from './ThemeToggle'
 
-const navItems = [
+const navItems: Array<{
+  to: string
+  label: string
+  end: boolean
+  hideOnMobile?: boolean
+}> = [
   { to: '/', label: '首页', end: true },
-  { to: '/about', label: '关于', end: false },
+  { to: '/titles', label: '工具', end: false },
+  { to: '/about', label: '关于', end: false, hideOnMobile: true },
 ]
 
 export function Header() {
@@ -38,7 +44,8 @@ export function Header() {
                 end={item.end}
                 className={({ isActive }) =>
                   [
-                    'rounded-full px-3 py-1.5 text-[13px] font-medium transition-colors sm:px-3.5 sm:text-sm',
+                    'inline-flex items-center rounded-full px-3 py-1.5 text-[13px] font-medium transition-colors sm:px-3.5 sm:text-sm',
+                    item.hideOnMobile ? 'hidden sm:inline-flex' : '',
                     isActive
                       ? 'bg-surface text-ink shadow-sm ring-1 ring-line'
                       : 'text-muted hover:text-ink',

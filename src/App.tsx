@@ -4,9 +4,11 @@ import { SiteLayout } from './components/SiteLayout'
 import { AboutPage } from './pages/AboutPage'
 import { HomePage } from './pages/HomePage'
 import { NotFoundPage } from './pages/NotFoundPage'
+import { TitleGeneratorPage } from './pages/TitleGeneratorPage'
 
 const pageTitles: Record<string, string> = {
   '/': '我的网站',
+  '/titles': '时装靴标题生成器 · 我的网站',
   '/about': '关于本站 · 我的网站',
 }
 
@@ -28,6 +30,7 @@ export default function App() {
       <Routes>
         <Route element={<SiteLayout />}>
           <Route index element={<HomePage />} />
+          <Route path="titles" element={<TitleGeneratorPage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
