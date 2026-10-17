@@ -139,3 +139,55 @@ export function SearchIcon({ className }: IconProps) {
     </svg>
   )
 }
+
+export function UploadIcon({ className }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={className}
+    >
+      <path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" />
+    </svg>
+  )
+}
+
+export function ResetIcon({ className }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={className}
+    >
+      <path d="M4.5 8.5A8 8 0 1 1 4 14" />
+      <path d="M4 4v5h5" />
+    </svg>
+  )
+}
+
+export function ChevronDownIcon({ className }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={className}
+    >
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  )
+}

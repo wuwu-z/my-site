@@ -4,7 +4,7 @@ import { ArrowLeftIcon, ArrowRightIcon } from '../components/Icons'
 const siteDetails = [
   { label: '技术栈', value: 'React + Vite' },
   { label: '路由', value: 'HashRouter' },
-  { label: '数据', value: '时装靴关键词库' },
+  { label: '数据', value: '7 类鞋类关键词库' },
   { label: '托管', value: 'GitHub Pages' },
 ]
 
@@ -20,7 +20,7 @@ export function AboutPage() {
             关于本站
           </h1>
           <p className="mt-6 max-w-xl text-pretty text-[15px] leading-7 text-muted sm:text-base sm:leading-8">
-            这是一个从零开始搭建的纯静态站点。现在，这里已经上线第一个实用工具：时装靴标题生成器。
+            这是一个从零开始搭建的纯静态站点。现在，这里已经上线鞋类标题生成器和 7 类关键词库。
           </p>
         </div>
 
@@ -36,15 +36,19 @@ export function AboutPage() {
               </span>
             </div>
             <p className="mt-4 max-w-xl text-sm leading-7 text-muted">
-              生成器直接使用 10.8 更新的 119 个时装靴关键词。输入固定词、鞋型和限制条件后，会在浏览器本地组合出
-              19–21 个汉字的标题，不经过后端，也不会上传你的输入。
+              生成器内置时装靴、毛毛鞋、勃肯鞋、雪地靴、时尚休闲鞋、骑士靴和棉鞋 7
+              类关键词。输入固定词、鞋型和限制条件后，会在浏览器本地组合出 19–21
+              个汉字的标题，不经过后端，也不会上传你的输入。
+            </p>
+            <p className="mt-3 max-w-xl text-sm leading-7 text-muted">
+              「词库管理」支持在浏览器内替换 .xlsx 关键词表，替换结果只保存在当前设备；要让所有访客看到新数据，需要重新部署。
             </p>
             <div className="mt-8 border-t border-line pt-6">
               <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted">
                 Next
               </p>
               <p className="mt-2 text-sm leading-6 text-ink">
-                继续补充关键词分析能力，并支持更多鞋类关键词库。
+                补齐暂缺的关键词数据，并继续完善关键词分析能力。
               </p>
             </div>
           </section>

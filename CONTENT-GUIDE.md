@@ -10,7 +10,7 @@
 
 ```html
 <title>我的网站</title>
-<meta name="description" content="我的网站，提供时装靴 SEO 标题生成与关键词查询。" />
+<meta name="description" content="我的网站，提供 7 类鞋类 SEO 标题生成、关键词查询与 xlsx 词库替换。" />
 ```
 
 `<title>` 是标签页和搜索结果里的标题；`description` 是页面简介。可以把「我的网站」替换成你的站点名。
@@ -20,7 +20,8 @@
 ```ts
 const pageTitles: Record<string, string> = {
   '/': '我的网站',
-  '/titles': '时装靴标题生成器 · 我的网站',
+  '/titles': '鞋类标题生成器 · 我的网站',
+  '/data': '关键词库管理 · 我的网站',
   '/about': '关于本站 · 我的网站',
 }
 ```
@@ -48,6 +49,7 @@ const pageTitles: Record<string, string> = {
 <nav aria-label="页脚导航" className="flex flex-wrap items-center gap-x-5 gap-y-2">
   <Link to="/">首页</Link>
   <Link to="/titles">标题工具</Link>
+  <Link to="/data">词库管理</Link>
   <Link to="/about">关于</Link>
 </nav>
 ```
@@ -59,12 +61,12 @@ const pageTitles: Record<string, string> = {
 文件：`src/pages/HomePage.tsx`
 
 - 小标题：`SEO title studio`
-- 主标题：`时装靴标题工作台`
-- 描述：`按固定词、鞋型和限制条件，从 10.8 更新的 119 个真实关键词中组合淘宝标题。`
+- 主标题：`鞋类标题工作台`
+- 描述：按固定词、鞋型和限制条件，从 7 个鞋类词库、358 个真实关键词中组合淘宝标题。
 - 主按钮：`打开标题生成器`，跳转 `/titles`
 - 次按钮：`了解本站`，跳转 `/about`
 
-主页底部的关键词数量来自 `FASHION_BOOT_META`，更新数据后无需手改首页数字。
+主页的关键词数量来自 `getLibraries()` 和 `getTotalKeywordCount()`，本地替换词库后也会自动反映。
 
 ## 3. 关于页文案
 
@@ -80,7 +82,7 @@ const pageTitles: Record<string, string> = {
 const siteDetails = [
   { label: '技术栈', value: 'React + Vite' },
   { label: '路由', value: 'HashRouter' },
-  { label: '数据', value: '时装靴关键词库' },
+  { label: '数据', value: '7 类鞋类关键词库' },
   { label: '托管', value: 'GitHub Pages' },
 ]
 ```
@@ -231,81 +233,115 @@ git push
 
 推送后 GitHub Actions 会自动部署。不要手动修改 `dist/`，它每次构建都会被覆盖。
 
-## 11. 标题生成器与关键词库
+## 11. 标题生成器和关键词库
 
 ### 页面位置
 
-- 页面：`/#/titles`
-- 页面组件：`src/pages/TitleGeneratorPage.tsx`
-- 关键词数据：`src/data/fashionBootKeywords.ts`
+- 标题生成器：`/#/titles`
+- 词库管理：`/#/data`
+- 生成器页面：`src/pages/TitleGeneratorPage.tsx`
+- 词库管理页面：`src/pages/KeywordDataPage.tsx`
+- 内置关键词数据：`src/data/keywordLibraries.ts`
+- xlsx 解析与本地保存：`src/lib/keywordLibraryStore.ts`
 - 组合规则：`src/lib/titleGenerator.ts`
 
-### 修改默认的固定词、鞋型、数量
+### 修改默认的固定词和数量
 
-打开 `src/pages/TitleGeneratorPage.tsx`，找到顶部的默认结果和组件内初始 state：
-
-```tsx
-const initialResult = generateTitles({
-  fixedWord: '内增高',
-  bootType: '短靴',
-  quantity: DEFAULT_TITLE_QUANTITY,
-  exclusions: DEFAULT_EXCLUSIONS,
-  seed: 20261008,
-})
-```
-
-以及：
+打开 `src/pages/TitleGeneratorPage.tsx`，修改：
 
 ```tsx
-const [fixedWord, setFixedWord] = useState('内增高')
-const [bootType, setBootType] = useState<BootType>('短靴')
+const DEFAULT_FIXED_WORD = '内增高'
 const [quantity, setQuantity] = useState(String(DEFAULT_TITLE_QUANTITY))
 ```
 
-两处同步修改，避免首屏示例与实际表单不一致。
+同时修改 `useState` 里的固定词初始值：
 
-### 更新关键词
-
-关键词文件结构：
-
-```ts
-export const FASHION_BOOT_META = {
-  category: '时装靴',
-  source: '时装靴.xlsx',
-  version: '10.8 更新',
-  keywordCount: 119,
-  searchIndexOneCount: 119,
-  searchIndexZeroCount: 0,
-} as const
-
-export const FASHION_BOOT_KEYWORDS: readonly FashionBootKeyword[] = [
-  { keyword: '棕色靴子', searchIndex: 1 },
-  // ……
-]
+```tsx
+const [fixedWord, setFixedWord] = useState(DEFAULT_FIXED_WORD)
 ```
 
-从最新 Excel 的 **Sheet1** 读取两列：
+### 在浏览器内替换 xlsx
 
-- A 列：关键词
-- B 列：搜索指数
+访问 `/#/data`，在对应类目卡片里上传 `.xlsx`。数据会写入浏览器 `localStorage`，刷新页面后仍然有效，并能立即被标题生成器使用。
 
-替换数据数组，并同步更新 `keywordCount`、`searchIndexOneCount`、`searchIndexZeroCount` 和 `version`。不要手工改写表格里不存在的关键词。
+- 只读取第一个工作表。
+- 表头必须同时包含「关键词」和「搜索指数」；表头可以不在第一行。
+- 重复关键词会去重，缺少搜索指数的行会跳过。
+- 单文件上限 10 MB。
+- 每个类目可以点「恢复默认」，回到内置数据。
+- 这是本地替换，不会影响公网其他访客。
 
-当前 Excel 全部 119 条的搜索指数都是 1，表里没有任何 0 指数记录，所以页面没有实现 1:1 搜索指数配比。如果以后的数据同时包含 0 和 1，并且需要按比例选词，需要在 `src/lib/titleGenerator.ts` 的选词逻辑中扩展，不能只在界面上加一个开关。
+### 更新全站内置关键词库
+
+文件：`src/data/keywordLibraries.ts`
+
+每个类目的结构：
+
+```ts
+{
+  id: 'snow-boots',
+  label: '雪地靴',
+  source: '雪地靴.xlsx',
+  version: '10.8 更新',
+  types: [
+    { id: 'snow-boots', label: '雪地靴', cores: ['雪地靴', '雪地鞋'] },
+  ],
+  keywords: [
+    { keyword: '长筒雪地靴', searchIndex: 1 },
+    // ……
+  ],
+}
+```
+
+当前 7 个内置类目及数据量：
+
+| 类目 | 关键词数 | 版本 | 现状 |
+| --- | ---: | --- | --- |
+| 时装靴 | 119 | 10.8 更新 | 可用 |
+| 毛毛鞋 | 7 | 10.10 更新 | 不足 19–21 字组合 |
+| 勃肯鞋 | 24 | 10.10 更新 | 可用 |
+| 雪地靴 | 108 | 10.8 更新 | 可用 |
+| 时尚休闲鞋 | 99 | 10.8 更新 | 可用 |
+| 骑士靴 | 0 | 10.10 更新 | 源表为空 |
+| 棉鞋 | 1 | 10.10 更新 | 源表只有 1 条 |
+
+更新时：
+
+1. 从最新 Excel 的第一个工作表读取 A 列「关键词」、B 列「搜索指数」。
+2. 只替换对应类目的 `keywords`，同步修改 `source` 和 `version`。
+3. 不要给缺失的类目编造数据。
+4. 修改后运行 `npm run dev` 和 `npm run build`，再提交推送。
+
+### 修改鞋型选项
+
+每个类目的 `types` 控制页面上的「鞋子类型」按钮。`cores` 是用于匹配该鞋型的关键词片段，至少有一个必须能在该类目关键词中找到，否则生成器会提示数据不足。
+
+例如：
+
+```ts
+{ id: 'short-boots', label: '短靴', cores: ['短靴'] },
+{ id: 'dad-shoes', label: '老爹鞋', cores: ['老爹鞋'] },
+```
 
 ### 调整标题组合风格
 
-`src/lib/titleGenerator.ts` 中：
+文件：`src/lib/titleGenerator.ts`
 
-- `TYPE_CORES`：不同鞋型使用的基础词。
-- `BASE_TOKEN_GROUPS`：风格、材质、设计、颜色、人群、季节等可选片段。
-- `DETAIL_GROUP`：长靴和过膝靴专用的修饰词。
-- 各组的 `chance` 控制该组被选中的概率，影响生成结果的长度和风格。
+- `BASE_TOKEN_GROUPS`：风格、材质、设计、功能、颜色、场景、季节、人群等可组合片段。
+- 各组的 `chance` 控制被选中的概率，影响标题长度和风格。
+- 片段必须能在当前类目关键词中找到，否则会被过滤，不会出现在标题里。
+- 生成器固定按「固定词 + 风格/材质 + 设计/新款 + 场景/颜色/功能/鞋型/人群/季节」拼接，并再次检查片段重叠、19–21 汉字、固定词和去重。
 
-新增任何组合片段之前，先确认它是现有某个关键词的子串。页面构建前请重新执行：
+### 搜索指数
+
+当前所有内置表格的搜索指数都是 1，没有 0 指数样本，因此页面没有实现 1:1 或按比例选词。页面会如实展示每个类目的「指数 1 / 指数 0」数量。如果以后的数据同时包含 0 和 1，并需要按搜索指数比例选词，需要在 `src/lib/titleGenerator.ts` 的选词逻辑中扩展，不能只在界面上加一个开关。
+
+### 提交前检查
 
 ```bash
 npm run dev
 npm run build
 ```
+
+至少检查：类目切换、鞋型切换、19–21 汉字、固定词、排除词、复制结果、xlsx 替换、恢复默认。
 

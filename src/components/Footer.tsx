@@ -14,6 +14,9 @@ export function Footer() {
           <Link to="/titles" className="transition-colors hover:text-ink">
             标题工具
           </Link>
+          <Link to="/data" className="transition-colors hover:text-ink">
+            词库管理
+          </Link>
           <Link to="/about" className="transition-colors hover:text-ink">
             关于
           </Link>

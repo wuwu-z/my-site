@@ -1,25 +1,32 @@
 import { useRef, useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import {
   ArrowLeftIcon,
+  ArrowRightIcon,
   CheckIcon,
+  ChevronDownIcon,
   CopyIcon,
   SearchIcon,
   SparkIcon,
 } from '../components/Icons'
-import { FASHION_BOOT_KEYWORDS, FASHION_BOOT_META } from '../data/fashionBootKeywords'
+import type { KeywordLibrary } from '../data/keywordLibraries'
 import {
-  BOOT_TYPES,
+  getLibraries,
+  getLibraryStatus,
+  getTotalKeywordCount,
+  type LibraryWithStatus,
+} from '../lib/keywordLibraryStore'
+import {
   DEFAULT_TITLE_QUANTITY,
   MAX_TITLE_QUANTITY,
   TITLE_LENGTH_MAX,
   TITLE_LENGTH_MIN,
   generateTitles,
-  type BootType,
   type GenerationResult,
   type TitleExclusions,
 } from '../lib/titleGenerator'
 
+const DEFAULT_FIXED_WORD = '内增高'
 const DEFAULT_EXCLUSIONS: TitleExclusions = {
   colors: false,
   fleece: false,
@@ -28,13 +35,17 @@ const DEFAULT_EXCLUSIONS: TitleExclusions = {
   customWords: [],
 }
 
-const initialResult = generateTitles({
-  fixedWord: '内增高',
-  bootType: '短靴',
-  quantity: DEFAULT_TITLE_QUANTITY,
-  exclusions: DEFAULT_EXCLUSIONS,
-  seed: 20261008,
-})
+function getPreferredType(library: KeywordLibrary | undefined) {
+  if (!library) return undefined
+
+  return (
+    library.types.find((type) =>
+      type.cores.some((core) =>
+        library.keywords.some((item) => item.keyword.includes(core)),
+      ),
+    ) ?? library.types[0]
+  )
+}
 
 const inputClassName =
   'mt-2 h-11 w-full rounded-xl border border-line bg-canvas/50 px-3.5 text-sm text-ink placeholder:text-muted/50 transition-colors focus:border-accent/60'
@@ -50,8 +61,16 @@ const exclusionOptions: ReadonlyArray<{
 ]
 
 export function TitleGeneratorPage() {
-  const [fixedWord, setFixedWord] = useState('内增高')
-  const [bootType, setBootType] = useState<BootType>('短靴')
+  const [searchParams] = useSearchParams()
+  const [libraries] = useState<LibraryWithStatus[]>(() => getLibraries())
+  const requestedCategoryId = searchParams.get('category')
+  const initialLibrary =
+    libraries.find((library) => library.id === requestedCategoryId) ?? libraries[0]
+  const initialType = getPreferredType(initialLibrary)
+
+  const [categoryId, setCategoryId] = useState(initialLibrary?.id ?? '')
+  const [typeId, setTypeId] = useState(initialType?.id ?? '')
+  const [fixedWord, setFixedWord] = useState(DEFAULT_FIXED_WORD)
   const [quantity, setQuantity] = useState(String(DEFAULT_TITLE_QUANTITY))
   const [exclusions, setExclusions] = useState({
     colors: false,
@@ -60,40 +79,71 @@ export function TitleGeneratorPage() {
     highHeel: false,
   })
   const [customExclusions, setCustomExclusions] = useState('')
-  const [result, setResult] = useState<GenerationResult>(initialResult)
-  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle')
   const [keywordQuery, setKeywordQuery] = useState('')
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle')
   const [copyMessage, setCopyMessage] = useState('')
+  const [initialResult] = useState<GenerationResult>(() =>
+    generateTitles({
+      library: initialLibrary,
+      typeId: initialType?.id ?? '',
+      fixedWord: DEFAULT_FIXED_WORD,
+      quantity: DEFAULT_TITLE_QUANTITY,
+      exclusions: DEFAULT_EXCLUSIONS,
+      seed: 20261008,
+    }),
+  )
+  const [result, setResult] = useState<GenerationResult>(initialResult)
 
   const resultsRef = useRef<HTMLDivElement>(null)
+  const seedRef = useRef(20261008)
   const seenTitlesRef = useRef(
     new Set(initialResult.titles.map((item) => item.text)),
   )
-  const seedRef = useRef(20261008)
 
-  const filteredKeywords = FASHION_BOOT_KEYWORDS.filter((item) =>
-    item.keyword.toLowerCase().includes(keywordQuery.trim().toLowerCase()),
-  )
+  const activeLibrary =
+    libraries.find((library) => library.id === categoryId) ?? libraries[0]
+  const activeType =
+    activeLibrary?.types.find((type) => type.id === typeId) ??
+    getPreferredType(activeLibrary)
+  const activeStatus = activeLibrary ? getLibraryStatus(activeLibrary) : null
+  const filteredKeywords =
+    activeLibrary?.keywords.filter((item) =>
+      item.keyword.toLowerCase().includes(keywordQuery.trim().toLowerCase()),
+    ) ?? []
 
-  function toggleExclusion(key: (typeof exclusionOptions)[number]['key']) {
-    setExclusions((current) => ({ ...current, [key]: !current[key] }))
+  const indexOne =
+    activeLibrary?.keywords.filter((item) => item.searchIndex === 1).length ?? 0
+  const indexZero =
+    activeLibrary?.keywords.filter((item) => item.searchIndex === 0).length ?? 0
+  const indexOther = (activeLibrary?.keywords.length ?? 0) - indexOne - indexZero
+
+  function buildExclusions() {
+    return {
+      ...exclusions,
+      customWords: customExclusions
+        .split(/[\s,，、;；]+/)
+        .map((word) => word.trim())
+        .filter(Boolean),
+    }
   }
 
-  function handleGenerate(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
+  function addSeenTitles(nextResult: GenerationResult) {
+    for (const title of nextResult.titles) {
+      seenTitlesRef.current.add(title.text)
+    }
+  }
 
+  function setGeneratedResult(
+    library: LibraryWithStatus,
+    nextTypeId: string,
+  ): GenerationResult {
     seedRef.current += 7919
     const nextResult = generateTitles({
+      library,
+      typeId: nextTypeId,
       fixedWord,
-      bootType,
       quantity: Number(quantity),
-      exclusions: {
-        ...exclusions,
-        customWords: customExclusions
-          .split(/[\s,，、;；]+/)
-          .map((word) => word.trim())
-          .filter(Boolean),
-      },
+      exclusions: buildExclusions(),
       previousTitles: [...seenTitlesRef.current],
       seed: seedRef.current,
     })
@@ -101,12 +151,33 @@ export function TitleGeneratorPage() {
     setResult(nextResult)
     setCopyState('idle')
     setCopyMessage('')
+    addSeenTitles(nextResult)
+    return nextResult
+  }
 
-    if (nextResult.titles.length > 0) {
-      for (const title of nextResult.titles) {
-        seenTitlesRef.current.add(title.text)
-      }
+  function handleCategoryChange(nextCategoryId: string) {
+    const nextLibrary = libraries.find((library) => library.id === nextCategoryId)
+    if (!nextLibrary) return
+
+    const nextType = getPreferredType(nextLibrary)
+    setCategoryId(nextLibrary.id)
+    setTypeId(nextType?.id ?? '')
+    setKeywordQuery('')
+    setGeneratedResult(nextLibrary, nextType?.id ?? '')
+  }
+
+  function handleTypeChange(nextTypeId: string) {
+    setTypeId(nextTypeId)
+    if (activeLibrary) {
+      setGeneratedResult(activeLibrary, nextTypeId)
     }
+  }
+
+  function handleGenerate(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!activeLibrary) return
+
+    setGeneratedResult(activeLibrary, activeType?.id ?? '')
 
     if (window.innerWidth < 1024) {
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -138,6 +209,12 @@ export function TitleGeneratorPage() {
     }
   }
 
+  function toggleExclusion(key: (typeof exclusionOptions)[number]['key']) {
+    setExclusions((current) => ({ ...current, [key]: !current[key] }))
+  }
+
+  const totalKeywords = getTotalKeywordCount(libraries)
+
   return (
     <main className="flex-1">
       <div className="mx-auto w-full max-w-6xl px-5 pb-20 pt-8 sm:px-8 sm:pt-12 lg:pb-24">
@@ -155,23 +232,23 @@ export function TitleGeneratorPage() {
               SEO title studio
             </p>
             <h1 className="mt-4 text-balance text-4xl font-semibold tracking-[-0.045em] text-ink sm:text-5xl">
-              时装靴标题生成器
+              鞋类标题生成器
             </h1>
             <p className="mt-5 max-w-xl text-pretty text-[15px] leading-7 text-muted">
-              从 {FASHION_BOOT_META.keywordCount} 个真实关键词中组合标题。固定词必现，其余片段全部来自最新关键词库。
+              从 {libraries.length} 个鞋类类目、{totalKeywords} 个真实关键词中组合标题。固定词必现，其余片段全部来自当前类目词库。
             </p>
           </div>
 
           <div className="flex flex-wrap gap-2 text-xs text-muted">
             <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5">
               <span className="size-1.5 rounded-full bg-accent" />
-              时装靴关键词库
+              {activeLibrary?.label ?? '未选择类目'} · {activeLibrary?.keywords.length ?? 0} 条
             </span>
             <span className="rounded-full border border-line bg-surface px-3 py-1.5">
-              {FASHION_BOOT_META.version}
+              {activeLibrary?.version ?? '无数据'}
             </span>
             <span className="rounded-full border border-line bg-surface px-3 py-1.5">
-              搜索指数均为 1
+              {libraries.length} 个类目
             </span>
           </div>
         </div>
@@ -199,6 +276,58 @@ export function TitleGeneratorPage() {
             </div>
 
             <form className="mt-6 space-y-5" onSubmit={handleGenerate}>
+              <div>
+                <div className="flex items-center justify-between gap-3">
+                  <label
+                    htmlFor="keyword-category"
+                    className="text-xs font-semibold tracking-[0.08em] text-muted"
+                  >
+                    关键词类目
+                  </label>
+                  <Link
+                    to="/data"
+                    className="text-[11px] font-medium text-muted transition-colors hover:text-ink"
+                  >
+                    替换 xlsx
+                  </Link>
+                </div>
+                <div className="relative">
+                  <select
+                    id="keyword-category"
+                    value={activeLibrary?.id ?? ''}
+                    onChange={(event) => handleCategoryChange(event.target.value)}
+                    className={`${inputClassName} appearance-none pr-10`}
+                  >
+                    {libraries.map((library) => (
+                      <option key={library.id} value={library.id}>
+                        {library.label}（{library.keywords.length} 条）
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDownIcon className="pointer-events-none absolute bottom-3.5 right-3.5 size-4 text-muted" />
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] leading-5 text-muted">
+                  <span>{activeLibrary?.source}</span>
+                  <span aria-hidden="true">·</span>
+                  <span>{activeLibrary?.version}</span>
+                  {activeLibrary?.isCustom && (
+                    <span className="rounded-full bg-accent-soft px-2 py-0.5 text-accent">
+                      本地替换
+                    </span>
+                  )}
+                </div>
+                {activeStatus && activeStatus.tone !== 'ready' && (
+                  <p className="mt-2 rounded-lg bg-surface-muted/60 px-3 py-2 text-[11px] leading-5 text-muted">
+                    {activeStatus.tone === 'empty'
+                      ? '该类目还没有关键词，暂时无法生成标题。'
+                      : '该类目关键词偏少，可能无法生成 19–21 字标题。'}
+                    <Link to="/data" className="ml-1 font-medium text-ink underline underline-offset-2">
+                      去替换 xlsx
+                    </Link>
+                  </p>
+                )}
+              </div>
+
               <div>
                 <label
                   htmlFor="fixed-word"
@@ -229,22 +358,22 @@ export function TitleGeneratorPage() {
                 <div
                   role="group"
                   aria-label="鞋子类型"
-                  className="mt-2 grid grid-cols-4 gap-1 rounded-xl bg-surface-muted/80 p-1"
+                  className="mt-2 flex flex-wrap gap-1 rounded-xl bg-surface-muted/80 p-1"
                 >
-                  {BOOT_TYPES.map((type) => (
+                  {(activeLibrary?.types ?? []).map((type) => (
                     <button
-                      key={type}
+                      key={type.id}
                       type="button"
-                      onClick={() => setBootType(type)}
-                      aria-pressed={bootType === type}
+                      onClick={() => handleTypeChange(type.id)}
+                      aria-pressed={activeType?.id === type.id}
                       className={[
-                        'h-8 rounded-lg text-xs font-medium transition-colors',
-                        bootType === type
+                        'min-w-0 flex-1 whitespace-nowrap rounded-lg px-2 py-2 text-[11px] font-medium transition-colors sm:text-xs',
+                        activeType?.id === type.id
                           ? 'bg-surface text-ink shadow-sm ring-1 ring-line'
                           : 'text-muted hover:text-ink',
                       ].join(' ')}
                     >
-                      {type}
+                      {type.label}
                     </button>
                   ))}
                 </div>
@@ -327,9 +456,11 @@ export function TitleGeneratorPage() {
             </form>
 
             <div className="mt-5 border-t border-line pt-4 text-[11px] leading-5 text-muted">
-              当前库：{FASHION_BOOT_META.keywordCount} 条关键词，搜索指数 1 有{' '}
-              {FASHION_BOOT_META.searchIndexOneCount} 条，0 有{' '}
-              {FASHION_BOOT_META.searchIndexZeroCount} 条。
+              词库数据保存在当前浏览器；替换入口在「
+              <Link to="/data" className="font-medium text-ink underline underline-offset-2">
+                词库管理
+              </Link>
+              」。
             </div>
           </section>
 
@@ -344,7 +475,7 @@ export function TitleGeneratorPage() {
                   <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">
                     Results
                   </p>
-                  <div className="mt-2 flex items-baseline gap-2">
+                  <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
                     <h2
                       id="generator-results-title"
                       className="text-lg font-semibold tracking-[-0.02em] text-ink"
@@ -352,7 +483,9 @@ export function TitleGeneratorPage() {
                       生成结果
                     </h2>
                     <span className="text-xs text-muted">
-                      {result.titles.length} 条 · {TITLE_LENGTH_MIN}–{TITLE_LENGTH_MAX} 汉字
+                      {activeLibrary?.label ?? ''}
+                      {activeType ? ` · ${activeType.label}` : ''} · {result.titles.length} 条 ·{' '}
+                      {TITLE_LENGTH_MIN}–{TITLE_LENGTH_MAX} 汉字
                     </span>
                   </div>
                 </div>
@@ -385,7 +518,13 @@ export function TitleGeneratorPage() {
                   role="alert"
                   className="m-5 rounded-2xl border border-line bg-surface-muted/60 px-4 py-4 text-sm leading-6 text-muted sm:m-6"
                 >
-                  {result.error}
+                  <p>{result.error}</p>
+                  <Link
+                    to="/data"
+                    className="mt-2 inline-flex text-xs font-medium text-ink underline underline-offset-2"
+                  >
+                    去词库管理替换 xlsx
+                  </Link>
                 </div>
               ) : (
                 <ol className="divide-y divide-line">
@@ -411,7 +550,7 @@ export function TitleGeneratorPage() {
                 </p>
                 <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-[11px] text-muted/80">
                   <span>固定词必现</span>
-                  <span>仅使用表内关键词</span>
+                  <span>仅使用当前类目关键词</span>
                   <span>同批次去重</span>
                   <span>浏览器本地生成</span>
                 </div>
@@ -429,29 +568,52 @@ export function TitleGeneratorPage() {
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">
                 Keyword library
               </p>
-              <h2
-                id="keyword-library-title"
-                className="mt-2 text-xl font-semibold tracking-[-0.025em] text-ink"
-              >
-                时装靴关键词库
-              </h2>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <h2
+                  id="keyword-library-title"
+                  className="text-xl font-semibold tracking-[-0.025em] text-ink"
+                >
+                  {activeLibrary?.label ?? '关键词'}关键词库
+                </h2>
+                {activeLibrary?.isCustom && (
+                  <span className="rounded-full bg-accent-soft px-2.5 py-0.5 text-[10px] font-medium text-accent">
+                    本地替换
+                  </span>
+                )}
+              </div>
               <p className="mt-2 text-sm leading-6 text-muted">
                 当前生成器使用的全部关键词，保留表内原始搜索指数。
+                {activeLibrary && (
+                  <>
+                    {' '}
+                    <span className="text-muted/80">
+                      {activeLibrary.source} · {activeLibrary.version}
+                    </span>
+                  </>
+                )}
               </p>
             </div>
-            <div className="relative w-full lg:w-72">
-              <label htmlFor="keyword-search" className="sr-only">
-                搜索关键词
-              </label>
-              <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted" />
-              <input
-                id="keyword-search"
-                type="search"
-                value={keywordQuery}
-                onChange={(event) => setKeywordQuery(event.target.value)}
-                placeholder="搜索关键词"
-                className="h-10 w-full rounded-full border border-line bg-canvas/50 pl-10 pr-4 text-sm text-ink placeholder:text-muted/50 focus:border-accent/60"
-              />
+            <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center lg:w-auto">
+              <div className="relative w-full lg:w-64">
+                <label htmlFor="keyword-search" className="sr-only">
+                  搜索关键词
+                </label>
+                <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted" />
+                <input
+                  id="keyword-search"
+                  type="search"
+                  value={keywordQuery}
+                  onChange={(event) => setKeywordQuery(event.target.value)}
+                  placeholder="搜索关键词"
+                  className="h-10 w-full rounded-full border border-line bg-canvas/50 pl-10 pr-4 text-sm text-ink placeholder:text-muted/50 focus:border-accent/60"
+                />
+              </div>
+              <Link
+                to="/data"
+                className="inline-flex h-10 shrink-0 items-center justify-center rounded-full border border-line bg-surface px-4 text-xs font-medium text-ink transition-colors hover:bg-surface-muted"
+              >
+                替换 xlsx
+              </Link>
             </div>
           </div>
 
@@ -485,7 +647,9 @@ export function TitleGeneratorPage() {
                       colSpan={2}
                       className="px-5 py-12 text-center text-sm text-muted sm:px-6"
                     >
-                      没有匹配的关键词
+                      {keywordQuery.trim()
+                        ? '没有匹配的关键词'
+                        : '当前类目暂无关键词，请先替换 xlsx'}
                     </td>
                   </tr>
                 )}
@@ -495,11 +659,14 @@ export function TitleGeneratorPage() {
 
           <div className="flex flex-col gap-1.5 border-t border-line px-5 py-3.5 text-[11px] leading-5 text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <p>
-              共 {FASHION_BOOT_META.keywordCount} 条 · 搜索指数 1：
-              {FASHION_BOOT_META.searchIndexOneCount} 条 · 0：
-              {FASHION_BOOT_META.searchIndexZeroCount} 条
+              共 {activeLibrary?.keywords.length ?? 0} 条 · 搜索指数 1：{indexOne} 条 · 0：
+              {indexZero} 条{indexOther > 0 ? ` · 其他：${indexOther} 条` : ''}
             </p>
-            <p>表内没有 0 指数样本，因此不执行 1:1 配比。</p>
+            <p>
+              {indexZero === 0
+                ? '表内没有 0 指数样本，因此不执行 1:1 配比。'
+                : '当前版本未提供按搜索指数比例选词。'}
+            </p>
           </div>
         </section>
 
@@ -507,15 +674,15 @@ export function TitleGeneratorPage() {
           {[
             {
               title: '真实词库',
-              text: '除固定词外，生成标题只使用表格中出现过的关键词或关键词片段。',
+              text: '除固定词外，生成标题只使用当前类目表格中出现过的关键词或关键词片段。',
             },
             {
               title: '长度受控',
               text: `每条标题按汉字计数，固定在 ${TITLE_LENGTH_MIN}–${TITLE_LENGTH_MAX} 个汉字，固定词也计入。`,
             },
             {
-              title: '搜索指数',
-              text: `当前 ${FASHION_BOOT_META.keywordCount} 条关键词的搜索指数全部为 1，没有为凑比例虚构 0 指数记录。`,
+              title: '数据可替换',
+              text: '词库管理支持上传新的 xlsx，替换只保存在当前浏览器；当前生成会立即使用新数据。',
             },
           ].map((item, index) => (
             <div
@@ -531,13 +698,22 @@ export function TitleGeneratorPage() {
           ))}
         </div>
 
-        <Link
-          to="/"
-          className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-muted transition-colors hover:text-ink"
-        >
-          <ArrowLeftIcon className="size-4" />
-          返回首页
-        </Link>
+        <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <Link
+            to="/"
+            className="group inline-flex items-center gap-2 text-sm font-medium text-muted transition-colors hover:text-ink"
+          >
+            <ArrowLeftIcon className="size-4 transition-transform duration-200 group-hover:-translate-x-0.5" />
+            返回首页
+          </Link>
+          <Link
+            to="/data"
+            className="inline-flex items-center gap-2 text-sm font-medium text-ink transition-colors hover:text-accent"
+          >
+            管理关键词库
+            <ArrowRightIcon className="size-4" />
+          </Link>
+        </div>
       </div>
     </main>
   )
