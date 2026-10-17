@@ -2,6 +2,8 @@
 
 一个可以直接部署到 GitHub Pages 的纯静态网站骨架，使用 Vite + React + TypeScript + Tailwind CSS 构建。
 
+**线上地址：** <https://wuwu-z.github.io/my-site/>
+
 当前包含：
 
 - 首页：站点名、顶部导航、建设中占位内容、自动年份页脚
