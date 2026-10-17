@@ -203,11 +203,11 @@ function buildTitle(
       .join(''),
   ]
 
-  return chunks.filter(Boolean).join(' ')
+  return chunks.filter(Boolean).join('')
 }
 
 export function generateTitles(options: GenerateTitlesOptions): GenerationResult {
-  const fixedWord = options.fixedWord.trim().replace(/\s+/g, ' ')
+  const fixedWord = options.fixedWord.replace(/\s+/g, '')
   const quantity = Number(options.quantity)
   const seed = options.seed ?? 20261008
   const { library } = options

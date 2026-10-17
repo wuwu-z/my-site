@@ -546,7 +546,7 @@ export function TitleGeneratorPage() {
 
               <div className="border-t border-line px-5 py-4 sm:px-6">
                 <p className="text-xs leading-6 text-muted">
-                  复制内容为纯标题，每行一条，无编号、无引号。标题中的固定词与全部组合片段已通过来源校验。
+                  复制内容为纯标题，每行一条，无编号、无引号、无空格。标题中的固定词与全部组合片段已通过来源校验。
                 </p>
                 <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-[11px] text-muted/80">
                   <span>固定词必现</span>
