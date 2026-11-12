@@ -10,6 +10,23 @@ export type KeywordTypeOption = {
   cores: readonly string[]
 }
 
+export type TitleGroupKey =
+  | 'style'
+  | 'material'
+  | 'design'
+  | 'newness'
+  | 'scene'
+  | 'color'
+  | 'function'
+  | 'season'
+  | 'audience'
+
+export type TitleTokenGroup = {
+  key: TitleGroupKey
+  tokens: readonly string[]
+  chance: number
+}
+
 export type KeywordLibrary = {
   id: string
   label: string
@@ -17,6 +34,8 @@ export type KeywordLibrary = {
   version: string
   types: readonly KeywordTypeOption[]
   keywords: readonly KeywordEntry[]
+  /** 类目自带的组合词组。没有配置时回退到鞋类通用词组。 */
+  tokenGroups?: readonly TitleTokenGroup[]
 }
 
 export const DEFAULT_LIBRARIES: readonly KeywordLibrary[] = [
@@ -461,6 +480,138 @@ export const DEFAULT_LIBRARIES: readonly KeywordLibrary[] = [
     ],
     keywords: [
       { keyword: '老年人冬鞋', searchIndex: 1 },
+    ],
+  },
+  {
+    id: 'clay',
+    label: '黏土',
+    source: '黏土关键词全表.xlsx',
+    version: '11.12 更新',
+    types: [
+      { id: 'clay-set', label: '套装礼盒', cores: ['套装', '全套'] },
+      { id: 'clay-bulk', label: '大包装补充装', cores: ['大包装', '补充装', '袋装'] },
+      { id: 'clay-tool', label: '工具模具', cores: ['工具', '材料包', '配件'] },
+      { id: 'clay-single', label: '单品泥料', cores: ['太空泥', '彩泥', '橡皮泥', '石膏'] },
+    ],
+    tokenGroups: [
+      { key: 'style', tokens: ['无毒', '安全', '食品级', '0甲醛', '无异味', '环保'], chance: 0.7 },
+      { key: 'material', tokens: ['超轻粘土', '超轻黏土', '粘土', '黏土', '彩泥', '橡皮泥', '太空泥', '太空沙', '面塑', '超轻'], chance: 0.95 },
+      { key: 'design', tokens: ['24色', '36色', '12色', '套装', '材料包', '大包装', '补充装', '袋装', '盒装', '全套', '大容量', '大包', '小包'], chance: 0.9 },
+      { key: 'scene', tokens: ['手工', 'DIY', '制作', '美术', '教学', '生日礼物', '开学'], chance: 0.75 },
+      { key: 'function', tokens: ['益智', '不粘手', '免烧', '柔软', '快干', '解压', '亲肤', '细腻', '混色'], chance: 0.7 },
+      { key: 'audience', tokens: ['儿童', '幼儿园专用', '小学生专用', '女孩', '男孩', '初中生', '一年级', '低年级', '专业'], chance: 0.85 },
+    ],
+    keywords: [
+      { keyword: '黏土', searchIndex: 4364 },
+      { keyword: '粘土', searchIndex: 4354 },
+      { keyword: '超轻', searchIndex: 3447 },
+      { keyword: '彩泥', searchIndex: 3061 },
+      { keyword: '超轻粘土', searchIndex: 2880 },
+      { keyword: '橡皮泥', searchIndex: 2687 },
+      { keyword: '太空泥', searchIndex: 722 },
+      { keyword: '超轻黏土', searchIndex: 366 },
+      { keyword: '泡泡', searchIndex: 156 },
+      { keyword: '石膏', searchIndex: 144 },
+      { keyword: '泥土', searchIndex: 94 },
+      { keyword: '水性', searchIndex: 66 },
+      { keyword: '白泥', searchIndex: 60 },
+      { keyword: '面粉', searchIndex: 58 },
+      { keyword: '泥巴', searchIndex: 58 },
+      { keyword: '石粉', searchIndex: 52 },
+      { keyword: '太空沙', searchIndex: 39 },
+      { keyword: '面塑', searchIndex: 38 },
+      { keyword: '轻量', searchIndex: 30 },
+      { keyword: '木塑', searchIndex: 28 },
+      { keyword: '岩塑', searchIndex: 22 },
+      { keyword: '色粉', searchIndex: 25 },
+      { keyword: '丙烯', searchIndex: 18 },
+      { keyword: '紫砂', searchIndex: 20 },
+      { keyword: '瓷土', searchIndex: 8 },
+      { keyword: '无毒', searchIndex: 1184 },
+      { keyword: '安全', searchIndex: 1078 },
+      { keyword: '食品', searchIndex: 378 },
+      { keyword: '食品级', searchIndex: 330 },
+      { keyword: '无味', searchIndex: 297 },
+      { keyword: '益智', searchIndex: 291 },
+      { keyword: '不粘手', searchIndex: 224 },
+      { keyword: '免烧', searchIndex: 207 },
+      { keyword: '环保', searchIndex: 127 },
+      { keyword: '无异味', searchIndex: 113 },
+      { keyword: '不沾手', searchIndex: 72 },
+      { keyword: '0甲醛', searchIndex: 51 },
+      { keyword: '封层', searchIndex: 59 },
+      { keyword: '解压', searchIndex: 48 },
+      { keyword: '上光油', searchIndex: 42 },
+      { keyword: '拉丝', searchIndex: 32 },
+      { keyword: '半透明', searchIndex: 24 },
+      { keyword: '无铅', searchIndex: 23 },
+      { keyword: '塑性', searchIndex: 16 },
+      { keyword: '柔软', searchIndex: 18 },
+      { keyword: '快干', searchIndex: 20 },
+      { keyword: '温和', searchIndex: 19 },
+      { keyword: '混色', searchIndex: 19 },
+      { keyword: '认证', searchIndex: 18 },
+      { keyword: '无痕', searchIndex: 17 },
+      { keyword: '掉色', searchIndex: 13 },
+      { keyword: '开裂', searchIndex: 15 },
+      { keyword: '亲肤', searchIndex: 9 },
+      { keyword: '细腻', searchIndex: 10 },
+      { keyword: '欧盟', searchIndex: 8 },
+      { keyword: '儿童', searchIndex: 3056 },
+      { keyword: '幼儿', searchIndex: 2139 },
+      { keyword: '幼儿园', searchIndex: 2067 },
+      { keyword: '学生', searchIndex: 1379 },
+      { keyword: '小学', searchIndex: 1218 },
+      { keyword: '小学生', searchIndex: 1198 },
+      { keyword: '幼儿园专用', searchIndex: 655 },
+      { keyword: '小学生专用', searchIndex: 538 },
+      { keyword: '女孩', searchIndex: 199 },
+      { keyword: '初中生', searchIndex: 81 },
+      { keyword: '专业', searchIndex: 81 },
+      { keyword: '男女', searchIndex: 72 },
+      { keyword: '一年级', searchIndex: 32 },
+      { keyword: '男孩', searchIndex: 20 },
+      { keyword: '老师', searchIndex: 21 },
+      { keyword: '低年级', searchIndex: 18 },
+      { keyword: '大师', searchIndex: 20 },
+      { keyword: '手工', searchIndex: 2837 },
+      { keyword: 'DIY', searchIndex: 2480 },
+      { keyword: '制作', searchIndex: 556 },
+      { keyword: '礼物', searchIndex: 125 },
+      { keyword: '模型', searchIndex: 110 },
+      { keyword: '美术', searchIndex: 95 },
+      { keyword: '娃娃', searchIndex: 75 },
+      { keyword: '教学', searchIndex: 47 },
+      { keyword: '生日', searchIndex: 45 },
+      { keyword: '生日礼物', searchIndex: 43 },
+      { keyword: '面条机', searchIndex: 39 },
+      { keyword: '冰淇淋', searchIndex: 34 },
+      { keyword: '石膏娃娃', searchIndex: 37 },
+      { keyword: '开学', searchIndex: 22 },
+      { keyword: '雪糕', searchIndex: 15 },
+      { keyword: '专用', searchIndex: 1557 },
+      { keyword: '24色', searchIndex: 1323 },
+      { keyword: '套装', searchIndex: 1291 },
+      { keyword: '材料', searchIndex: 1189 },
+      { keyword: '工具', searchIndex: 1019 },
+      { keyword: '36色', searchIndex: 909 },
+      { keyword: '大包', searchIndex: 929 },
+      { keyword: '材料包', searchIndex: 733 },
+      { keyword: '12色', searchIndex: 585 },
+      { keyword: '包装', searchIndex: 567 },
+      { keyword: '大包装', searchIndex: 528 },
+      { keyword: '500G', searchIndex: 380 },
+      { keyword: '补充装', searchIndex: 247 },
+      { keyword: '袋装', searchIndex: 183 },
+      { keyword: '100G', searchIndex: 174 },
+      { keyword: '盒装', searchIndex: 115 },
+      { keyword: '全套', searchIndex: 85 },
+      { keyword: '大容量', searchIndex: 66 },
+      { keyword: '大袋', searchIndex: 62 },
+      { keyword: '配件', searchIndex: 35 },
+      { keyword: '小包', searchIndex: 26 },
+      { keyword: '豪华', searchIndex: 19 },
+      { keyword: '克装', searchIndex: 18 },
     ],
   },
 ]

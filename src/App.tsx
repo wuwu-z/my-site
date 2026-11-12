@@ -9,7 +9,7 @@ import { TitleGeneratorPage } from './pages/TitleGeneratorPage'
 
 const pageTitles: Record<string, string> = {
   '/': '我的网站',
-  '/titles': '鞋类标题生成器 · 我的网站',
+  '/titles': '标题生成器 · 我的网站',
   '/data': '关键词库管理 · 我的网站',
   '/about': '关于本站 · 我的网站',
 }

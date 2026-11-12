@@ -232,10 +232,10 @@ export function TitleGeneratorPage() {
               SEO title studio
             </p>
             <h1 className="mt-4 text-balance text-4xl font-semibold tracking-[-0.045em] text-ink sm:text-5xl">
-              鞋类标题生成器
+              标题生成器
             </h1>
             <p className="mt-5 max-w-xl text-pretty text-[15px] leading-7 text-muted">
-              从 {libraries.length} 个鞋类类目、{totalKeywords} 个真实关键词中组合标题。固定词必现，其余片段全部来自当前类目词库。
+              从 {libraries.length} 个类目、{totalKeywords} 个真实关键词中组合标题。固定词必现，其余片段全部来自当前类目词库。
             </p>
           </div>
 
@@ -353,11 +353,11 @@ export function TitleGeneratorPage() {
 
               <div>
                 <span className="text-xs font-semibold tracking-[0.08em] text-muted">
-                  鞋子类型
+                  类型
                 </span>
                 <div
                   role="group"
-                  aria-label="鞋子类型"
+                  aria-label="类型"
                   className="mt-2 flex flex-wrap gap-1 rounded-xl bg-surface-muted/80 p-1"
                 >
                   {(activeLibrary?.types ?? []).map((type) => (

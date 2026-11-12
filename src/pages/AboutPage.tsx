@@ -4,7 +4,7 @@ import { ArrowLeftIcon, ArrowRightIcon } from '../components/Icons'
 const siteDetails = [
   { label: '技术栈', value: 'React + Vite' },
   { label: '路由', value: 'HashRouter' },
-  { label: '数据', value: '7 类鞋类关键词库' },
+  { label: '数据', value: '8 类关键词库' },
   { label: '托管', value: 'GitHub Pages' },
 ]
 
@@ -20,7 +20,7 @@ export function AboutPage() {
             关于本站
           </h1>
           <p className="mt-6 max-w-xl text-pretty text-[15px] leading-7 text-muted sm:text-base sm:leading-8">
-            这是一个从零开始搭建的纯静态站点。现在，这里已经上线鞋类标题生成器和 7 类关键词库。
+            这是一个从零开始搭建的纯静态站点。现在，这里已经上线标题生成器和 8 类关键词库。
           </p>
         </div>
 
@@ -36,8 +36,8 @@ export function AboutPage() {
               </span>
             </div>
             <p className="mt-4 max-w-xl text-sm leading-7 text-muted">
-              生成器内置时装靴、毛毛鞋、勃肯鞋、雪地靴、时尚休闲鞋、骑士靴和棉鞋 7
-              类关键词。输入固定词、鞋型和限制条件后，会在浏览器本地组合出 19–21
+              生成器内置时装靴、毛毛鞋、勃肯鞋、雪地靴、时尚休闲鞋、骑士靴、棉鞋和黏土 8
+              类关键词。输入固定词、类型和限制条件后，会在浏览器本地组合出 19–21
               个汉字的标题，不经过后端，也不会上传你的输入。
             </p>
             <p className="mt-3 max-w-xl text-sm leading-7 text-muted">

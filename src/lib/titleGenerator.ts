@@ -1,4 +1,9 @@
-import type { KeywordLibrary, KeywordTypeOption } from '../data/keywordLibraries'
+import type {
+  KeywordLibrary,
+  KeywordTypeOption,
+  TitleGroupKey,
+  TitleTokenGroup,
+} from '../data/keywordLibraries'
 
 export const TITLE_LENGTH_MIN = 19
 export const TITLE_LENGTH_MAX = 21
@@ -33,22 +38,9 @@ export type GenerationResult = {
   error: string | null
 }
 
-type GroupKey =
-  | 'style'
-  | 'material'
-  | 'design'
-  | 'newness'
-  | 'scene'
-  | 'color'
-  | 'function'
-  | 'season'
-  | 'audience'
+type GroupKey = TitleGroupKey
 
-type TokenGroup = {
-  key: GroupKey
-  tokens: readonly string[]
-  chance: number
-}
+type TokenGroup = TitleTokenGroup
 
 const COLOR_WORDS = ['黑', '白', '棕', '卡其', '灰']
 
@@ -230,7 +222,7 @@ export function generateTitles(options: GenerateTitlesOptions): GenerationResult
 
   const type = getTypeOption(library, options.typeId)
   if (!type) {
-    return { titles: [], error: '请选择有效的鞋子类型。' }
+    return { titles: [], error: '请选择有效的类型。' }
   }
 
   const customWords = options.exclusions.customWords
@@ -262,13 +254,14 @@ export function generateTitles(options: GenerateTitlesOptions): GenerationResult
   if (fixedLength + countHanCharacters(typeToken) > TITLE_LENGTH_MAX) {
     return {
       titles: [],
-      error: `固定词加鞋型已有 ${fixedLength + countHanCharacters(typeToken)} 个汉字，无法控制在 ${TITLE_LENGTH_MIN}–${TITLE_LENGTH_MAX} 字。`,
+      error: `固定词加类型已有 ${fixedLength + countHanCharacters(typeToken)} 个汉字，无法控制在 ${TITLE_LENGTH_MIN}–${TITLE_LENGTH_MAX} 字。`,
     }
   }
 
+  const tokenGroups = library.tokenGroups ?? BASE_TOKEN_GROUPS
   const availableGroups: TokenGroup[] = []
 
-  for (const group of BASE_TOKEN_GROUPS) {
+  for (const group of tokenGroups) {
     if (group.key === 'color' && options.exclusions.colors) continue
 
     const tokens = group.tokens.filter((token) => {

@@ -100,7 +100,7 @@ export function KeywordDataPage() {
   }
 
   function handleResetAll() {
-    const confirmed = window.confirm('清除所有本地替换，恢复全部 7 个内置关键词库？')
+    const confirmed = window.confirm('清除所有本地替换，恢复全部内置关键词库？')
     if (!confirmed) return
 
     try {
@@ -139,7 +139,7 @@ export function KeywordDataPage() {
               关键词库管理
             </h1>
             <p className="mt-5 max-w-xl text-pretty text-[15px] leading-7 text-muted">
-              为 7 个鞋类类目替换新的 .xlsx 关键词表。表格只读取第一个工作表，保留「关键词 / 搜索指数」两列。
+              为各内置类目替换新的 .xlsx 关键词表。表格只读取第一个工作表，保留「关键词 / 搜索指数」两列。
             </p>
           </div>
 

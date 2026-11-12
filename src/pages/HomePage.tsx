@@ -30,11 +30,11 @@ export function HomePage() {
         </p>
 
         <h1 className="mt-5 text-balance text-[clamp(2.6rem,7vw,4.6rem)] font-semibold leading-[1.08] tracking-[-0.045em] text-ink">
-          鞋类标题工作台<span className="text-accent">。</span>
+          标题生成工作台<span className="text-accent">。</span>
         </h1>
 
         <p className="mt-6 max-w-xl text-pretty text-[15px] leading-7 text-muted sm:text-base sm:leading-8">
-          按固定词、鞋型和限制条件，从 {libraries.length} 个鞋类词库、{totalKeywords}{' '}
+          按固定词、类型和限制条件，从 {libraries.length} 个类目词库、{totalKeywords}{' '}
           个真实关键词中组合淘宝标题。
         </p>
 
@@ -55,7 +55,7 @@ export function HomePage() {
         </div>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-muted">
-          <span>{libraries.length} 个鞋类词库</span>
+          <span>{libraries.length} 个类目词库</span>
           <span aria-hidden="true" className="size-1 rounded-full bg-line" />
           <span>{totalKeywords} 个关键词</span>
           <span aria-hidden="true" className="size-1 rounded-full bg-line" />

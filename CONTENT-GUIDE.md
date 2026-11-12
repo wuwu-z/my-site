@@ -10,7 +10,7 @@
 
 ```html
 <title>我的网站</title>
-<meta name="description" content="我的网站，提供 7 类鞋类 SEO 标题生成、关键词查询与 xlsx 词库替换。" />
+<meta name="description" content="我的网站，提供多类目 SEO 标题生成、关键词查询与 xlsx 词库替换。" />
 ```
 
 `<title>` 是标签页和搜索结果里的标题；`description` 是页面简介。可以把「我的网站」替换成你的站点名。
@@ -20,7 +20,7 @@
 ```ts
 const pageTitles: Record<string, string> = {
   '/': '我的网站',
-  '/titles': '鞋类标题生成器 · 我的网站',
+  '/titles': '标题生成器 · 我的网站',
   '/data': '关键词库管理 · 我的网站',
   '/about': '关于本站 · 我的网站',
 }
@@ -61,8 +61,8 @@ const pageTitles: Record<string, string> = {
 文件：`src/pages/HomePage.tsx`
 
 - 小标题：`SEO title studio`
-- 主标题：`鞋类标题工作台`
-- 描述：按固定词、鞋型和限制条件，从 7 个鞋类词库、358 个真实关键词中组合淘宝标题。
+- 主标题：`标题生成工作台`
+- 描述：按固定词、类型和限制条件，从 8 个类目词库、468 个真实关键词中组合淘宝标题。
 - 主按钮：`打开标题生成器`，跳转 `/titles`
 - 次按钮：`了解本站`，跳转 `/about`
 
@@ -82,7 +82,7 @@ const pageTitles: Record<string, string> = {
 const siteDetails = [
   { label: '技术栈', value: 'React + Vite' },
   { label: '路由', value: 'HashRouter' },
-  { label: '数据', value: '7 类鞋类关键词库' },
+  { label: '数据', value: '8 类关键词库' },
   { label: '托管', value: 'GitHub Pages' },
 ]
 ```
@@ -304,6 +304,7 @@ const [fixedWord, setFixedWord] = useState(DEFAULT_FIXED_WORD)
 | 时尚休闲鞋 | 99 | 10.8 更新 | 可用 |
 | 骑士靴 | 0 | 10.10 更新 | 源表为空 |
 | 棉鞋 | 1 | 10.10 更新 | 源表只有 1 条 |
+| 黏土 | 110 | 11.12 更新 | 可用 |
 
 更新时：
 
@@ -312,9 +313,9 @@ const [fixedWord, setFixedWord] = useState(DEFAULT_FIXED_WORD)
 3. 不要给缺失的类目编造数据。
 4. 修改后运行 `npm run dev` 和 `npm run build`，再提交推送。
 
-### 修改鞋型选项
+### 修改类型选项
 
-每个类目的 `types` 控制页面上的「鞋子类型」按钮。`cores` 是用于匹配该鞋型的关键词片段，至少有一个必须能在该类目关键词中找到，否则生成器会提示数据不足。
+每个类目的 `types` 控制页面上的「类型」按钮。`cores` 是用于匹配该类型的关键词片段，至少有一个必须能在该类目关键词中找到，否则生成器会提示数据不足。
 
 例如：
 
@@ -330,7 +331,7 @@ const [fixedWord, setFixedWord] = useState(DEFAULT_FIXED_WORD)
 - `BASE_TOKEN_GROUPS`：风格、材质、设计、功能、颜色、场景、季节、人群等可组合片段。
 - 各组的 `chance` 控制被选中的概率，影响标题长度和风格。
 - 片段必须能在当前类目关键词中找到，否则会被过滤，不会出现在标题里。
-- 生成器固定按「固定词 + 风格/材质 + 设计/新款 + 场景/颜色/功能/鞋型/人群/季节」拼接，并再次检查片段重叠、19–21 汉字、固定词和去重。
+- 生成器固定按「固定词 + 风格/材质 + 设计/新款 + 场景/颜色/功能/类型/人群/季节」拼接，并再次检查片段重叠、19–21 汉字、固定词和去重。
 
 ### 搜索指数
 
@@ -343,5 +344,5 @@ npm run dev
 npm run build
 ```
 
-至少检查：类目切换、鞋型切换、19–21 汉字、固定词、排除词、复制结果、xlsx 替换、恢复默认。
+至少检查：类目切换、类型切换、19–21 汉字、固定词、排除词、复制结果、xlsx 替换、恢复默认。
 
