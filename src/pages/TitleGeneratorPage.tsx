@@ -26,7 +26,7 @@ import {
   type TitleExclusions,
 } from '../lib/titleGenerator'
 
-const DEFAULT_FIXED_WORD = '内增高'
+const DEFAULT_FIXED_WORD = ''
 const DEFAULT_EXCLUSIONS: TitleExclusions = {
   colors: false,
   fleece: false,
@@ -235,7 +235,7 @@ export function TitleGeneratorPage() {
               标题生成器
             </h1>
             <p className="mt-5 max-w-xl text-pretty text-[15px] leading-7 text-muted">
-              从 {libraries.length} 个类目、{totalKeywords} 个真实关键词中组合标题。固定词必现，其余片段全部来自当前类目词库。
+              从 {libraries.length} 个类目、{totalKeywords} 个真实关键词中组合标题。固定词可留空，其余片段全部来自当前类目词库。
             </p>
           </div>
 
@@ -333,21 +333,20 @@ export function TitleGeneratorPage() {
                   htmlFor="fixed-word"
                   className="text-xs font-semibold tracking-[0.08em] text-muted"
                 >
-                  固定词
+                  固定词（选填）
                 </label>
                 <input
                   id="fixed-word"
                   type="text"
-                  required
                   maxLength={24}
                   autoComplete="off"
                   value={fixedWord}
                   onChange={(event) => setFixedWord(event.target.value)}
-                  placeholder="例如：内增高"
+                  placeholder="选填，例如：晨光"
                   className={inputClassName}
                 />
                 <p className="mt-2 text-[11px] leading-5 text-muted">
-                  会原样出现在每条标题中，不参与关键词表校验。
+                  选填。填写后原样出现在每条标题开头；留空则完全由当前类目词库组合。
                 </p>
               </div>
 
@@ -549,7 +548,7 @@ export function TitleGeneratorPage() {
                   复制内容为纯标题，每行一条，无编号、无引号、无空格。标题中的固定词与全部组合片段已通过来源校验。
                 </p>
                 <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-[11px] text-muted/80">
-                  <span>固定词必现</span>
+                  <span>固定词可选</span>
                   <span>仅使用当前类目关键词</span>
                   <span>同批次去重</span>
                   <span>浏览器本地生成</span>
@@ -674,11 +673,11 @@ export function TitleGeneratorPage() {
           {[
             {
               title: '真实词库',
-              text: '除固定词外，生成标题只使用当前类目表格中出现过的关键词或关键词片段。',
+              text: '除固定词（可选）外，生成标题只使用当前类目表格中出现过的关键词或关键词片段。',
             },
             {
               title: '长度受控',
-              text: `每条标题按汉字计数，固定在 ${TITLE_LENGTH_MIN}–${TITLE_LENGTH_MAX} 个汉字，固定词也计入。`,
+              text: `每条标题按汉字计数，固定在 ${TITLE_LENGTH_MIN}–${TITLE_LENGTH_MAX} 个汉字，固定词也计入字数。`,
             },
             {
               title: '数据可替换',

@@ -204,9 +204,6 @@ export function generateTitles(options: GenerateTitlesOptions): GenerationResult
   const seed = options.seed ?? 20261008
   const { library } = options
 
-  if (!fixedWord) {
-    return { titles: [], error: '请先填写固定词。' }
-  }
   if (!Number.isInteger(quantity) || quantity < 1 || quantity > MAX_TITLE_QUANTITY) {
     return {
       titles: [],
@@ -266,7 +263,7 @@ export function generateTitles(options: GenerateTitlesOptions): GenerationResult
 
     const tokens = group.tokens.filter((token) => {
       if (!library.keywords.some((item) => item.keyword.includes(token))) return false
-      if (fixedWord.includes(token) || token.includes(fixedWord)) return false
+      if (fixedWord && (fixedWord.includes(token) || token.includes(fixedWord))) return false
       if (typeToken && (typeToken.includes(token) || token.includes(typeToken))) return false
       if (options.exclusions.fleece && token.includes('加绒')) return false
       if (options.exclusions.winter && token.includes('冬')) return false
